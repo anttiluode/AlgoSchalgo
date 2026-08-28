@@ -284,6 +284,92 @@ Run:
 
 See [results/HUNT4.md](results/HUNT4.md).
 
+## HUNT5 — the ECG loop: observation geometry is causal
+
+HUNT0-HUNT4 used planted synthetic crossings.
+
+HUNT5 takes a pre-existing Perception Laboratory feedback graph that was not designed for AlgoSchalgo and asks whether its strange period-52 "ECG" rhythm is actually organized by observation degeneracy.
+
+Headless reproduction of the supplied five-node loop gives an asymptotic period-52 cycle.
+
+The original observer is only the first four cells of a normalized 16x16 area-downsampled checkerboard.
+
+Two different observation walls occur in the steady cycle:
+
+| square size | feedback | first-4 raw variance | full 16x16 raw variance |
+|---:|---:|---:|---:|
+| 48 | 1.000000 | .187500 | .249939 |
+| 43 | 1.312500 | .166748 | .146172 |
+| **84** | **0.000000** | **0.000000** | **.175594** |
+| **-12** | **3.157895** | **.009277** | **.005082** |
+
+At q=84 the chosen aperture is blind but the rest of the 16x16 image is still informative.
+
+At q=-12 the whole 16x16 representation is already low contrast and max-normalization amplifies the residual structure.
+
+### Causality test
+
+Keep the controller exactly fixed.
+
+Move only the four-cell readout window along the same 16x16 top row:
+
+| window x | period |
+|---:|---:|
+| 0 | **52** |
+| 1 | 51 |
+| 2 | 51 |
+| 3 | **1** |
+| 4 | **1** |
+| 5 | 51 |
+| 6 | **2** |
+| 7 | 51 |
+| 8 | **1** |
+| 9 | **1** |
+| 10 | 102 |
+| 11 | 104 |
+| 12 | **2** |
+
+The rhythm is therefore not an invariant of the controller alone.
+
+Stronger intervention: preserve the original observer exactly until its four raw samples become locally indistinguishable. Only then choose another four-cell window at the same 16x16 resolution.
+
+Result:
+
+    original observer  -> period 52
+    ambiguity rescue   -> period 1
+
+The rescued loop settles at q=84 with feedback 1.75. No controller parameter changed.
+
+A second intervention repairs only whole-16x16 contrast collapse while deliberately leaving the q=84 local-aperture zero intact:
+
+    original observer       -> period 52
+    resolution-only rescue  -> period 51
+
+So both observation failures alter the return map, while the q=84 aperture wall is the decisive kill point in this saved configuration.
+
+### Important correction to HUNT1 intuition
+
+Split-half disagreement is not itself an observability measure.
+
+A deterministic sensor can report the same information-free vector perfectly twice:
+
+    low disagreement != informative observation.
+
+HUNT5 therefore separates:
+
+- estimator uncertainty / repeatability;
+- distinction strength / observability.
+
+It also exposes an action-dependent problem: the current vector can remain perfectly healthy until the controller itself jumps into a blind measurement regime.
+
+A one-step warning therefore needs the outgoing action/control or a learned model of how action changes future observer identifiability.
+
+Run:
+
+    python experiments/hunt5_ecg_observer_causality.py
+
+See [results/HUNT5.md](results/HUNT5.md).
+
 ## The actual remaining failure
 
 HUNT0 also contains an exact-degeneracy attack.
@@ -328,12 +414,12 @@ Novelty is currently **unclaimed**.
 
 ## Next attacks
 
-1. Give observables an explicit cost: many lags/frequencies/views available, only a few affordable per update.
-2. Replace synthetic operators with empirical multi-lag operators from one continuous nonstationary stream.
-3. Compare block-local selection against full SOBI / joint diagonalization, fixed measurement subsets, random sensing and active experiment-design baselines.
-4. Define ambiguity from joint signature geometry rather than from one projected eigengap.
-5. Replace independent splits with contiguous/bootstrap/robust uncertainty estimates.
-6. Spend task consequence only after cheap measurement selection still leaves a block unresolved.
+1. Learn an action -> future-identifiability map on the ECG loop and choose the cheapest observer before the controller crosses a blind region.
+2. Give candidate observers an explicit cost and compare fixed, all-observer, random, global-adaptive and block-local policies.
+3. Replace synthetic HUNT4 operators with empirical multi-lag/frequency/view operators from one continuous nonstationary stream.
+4. Compare against full SOBI / joint diagonalization, observability-Gramian sensor selection and active experiment-design baselines.
+5. Keep estimation uncertainty separate from distinction strength; do not let repeatable collapse masquerade as confidence.
+6. Spend external task consequence only after cheap observer changes still leave a block unresolved.
 
 See [PAPERS.md](PAPERS.md).
 
@@ -351,4 +437,4 @@ Python 3.10+.
 
 Current positive result:
 
-> A spectral tracker can become substantially more robust by changing the granularity of what it claims to identify, locally and online, according to the relationship between spectral gaps and current estimation uncertainty.
+> The useful object is broader than a spectral tracker: estimate what distinctions are currently supportable, change representation granularity when they are not, search other observables locally, and in closed loop account for the fact that actions can change the observability of the next state.
