@@ -106,6 +106,28 @@ Why it matters:
 - a source pair that collides at one lag may remain distinguishable from its signature across several lags;
 - if so, the correct ambiguity block should be defined by **joint temporal identifiability**, not one eigengap.
 
+## Randomized joint diagonalization — HUNT3's main prior-art attack
+
+Martin He and Daniel Kressner, *Randomized Joint Diagonalization of Symmetric Matrices*, SIAM Journal on Matrix Analysis and Applications.
+
+https://doi.org/10.1137/22M1541265
+
+Related randomized joint-eigenvalue work uses the same algebraic fact: for commuting matrices, a generic linear combination preserves common eigenvectors while randomly projecting the joint eigenvalue tuples.
+
+https://link.springer.com/article/10.1007/s11075-024-01971-0
+
+Why it matters:
+
+- HUNT3's random linear combinations are **not new**;
+- the literature gives perturbation/robustness analysis for nearly commuting noisy families;
+- HUNT3's candidate residue is the online policy around that old machinery:
+  choose a cheap projection using a split-half noise-normalized identifiability margin, then change ambiguity-block granularity accordingly;
+- a stronger attacker is to run a proper randomized/full joint diagonalizer instead of selecting one projection.
+
+The conceptual correction supplied by HUNT3 remains useful regardless of novelty:
+
+> ambiguity is relative to the available operator family. A collision in one lag/view need not be a true information-theoretic ambiguity.
+
 ## Spectral-gap estimation
 
 Michele Benzi, Michele Rinelli, Igor Simunec, *Estimation of spectral gaps for sparse symmetric matrices*, Numerische Mathematik, 2026.
