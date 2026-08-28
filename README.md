@@ -370,6 +370,74 @@ Run:
 
 See [results/HUNT5.md](results/HUNT5.md).
 
+## HUNT6 — ProbePulse32: a transparent pulsing recurrent network
+
+HUNT5 suggested a network whose pulse is an information-seeking action rather than an opaque activation.
+
+HUNT6 builds the first one.
+
+The recurrent state has exactly 32 units, but every unit has a declared meaning:
+
+    unit i = P(hidden ring position, hidden direction | observations)
+
+The task contains an exactly aliased free sensor plus four optional local observers. Rare hidden jumps are invisible to the free stream, so no amount of black-box memory can reconstruct them without buying another observation.
+
+ProbePulse32 is fitted only by transition counts, sensor means and residual noise estimates. No gradient descent is used in the pulse machine.
+
+Runtime:
+
+    predict explicit 32-state belief
+        ↓
+    read free sensor
+        ↓
+    compute position entropy
+        ↓
+    ambiguous?
+      no -> continue
+      yes -> PULSE
+              ↓
+            score 4 optional sensors by
+            posterior hypothesis separation / noise
+              ↓
+            read best ONE
+              ↓
+            update belief
+
+First receipt:
+
+| model / policy | exact-state accuracy | optional reads / step |
+|---|---:|---:|
+| Reservoir32, free sensor | .11805 ± .00087 | 0 |
+| GRU32, free sensor | .12013 ± .00228 | 0 |
+| ProbePulse32 H=.6 | **.91675** | **.34970** |
+| GRU32, all sensors | .90156 ± .00183 | 4.0 |
+| ProbePulse32 H=.3 | .95477 | .75754 |
+| MoE 4x8, all sensors | **.96734 ± .00070** | 4.0 |
+| transparent Bayes, all sensors | .99374 | 4.0 |
+
+So the strongest learned attacker still wins raw accuracy. But ProbePulse32 H=.3 gives up about 1.26 percentage points versus the MoE while reading 5.28x fewer optional sensors.
+
+At H=.6 it slightly beats the first-pass all-sensor GRU while using 11.44x fewer optional reads.
+
+More importantly, matched-budget attacks split the effect:
+
+    H=.4 ProbePulse best timing + best sensor       .94272
+    H=.4 entropy timing + RANDOM sensor             .91868
+    H=.4 RANDOM timing + random sensor              .85199
+    H=.4 PERIODIC timing + random sensor            .85402
+
+On this first task, knowing **when the current belief has become too ambiguous** matters more than choosing the perfect observer; HUNT4-style sensor choice adds another smaller gain.
+
+This is intentionally not black-box AI. A pulse can print the 32 hypotheses, entropy, four sensor scores, selected sensor and posterior after measurement.
+
+Important caveat: the pulse network gets a strong discrete-state prior. HUNT7 must remove that privilege.
+
+Run:
+
+    python experiments/hunt6_probe_pulse32.py
+
+See [results/HUNT6.md](results/HUNT6.md).
+
 ## The actual remaining failure
 
 HUNT0 also contains an exact-degeneracy attack.
@@ -414,12 +482,12 @@ Novelty is currently **unclaimed**.
 
 ## Next attacks
 
-1. Learn an action -> future-identifiability map on the ECG loop and choose the cheapest observer before the controller crosses a blind region.
-2. Give candidate observers an explicit cost and compare fixed, all-observer, random, global-adaptive and block-local policies.
-3. Replace synthetic HUNT4 operators with empirical multi-lag/frequency/view operators from one continuous nonstationary stream.
-4. Compare against full SOBI / joint diagonalization, observability-Gramian sensor selection and active experiment-design baselines.
+1. Remove HUNT6's hand-enumerated 32-state hypothesis dictionary: continuous recurrent state, explicit ambiguity layer, learned observation operators.
+2. Train an equally budgeted learned sensor-gating GRU/RNN attacker, not only cheap-only/all-sensor black boxes.
+3. Learn action -> future-identifiability on the ECG loop so a probe can be issued before the controller enters a blind region.
+4. Give observer actions explicit compute/energy/latency cost and optimize accuracy per measurement.
 5. Keep estimation uncertainty separate from distinction strength; do not let repeatable collapse masquerade as confidence.
-6. Spend external task consequence only after cheap observer changes still leave a block unresolved.
+6. Move from synthetic ring/checker worlds to an actual temporal/audio/sensor task once the continuous-state pulse survives.
 
 See [PAPERS.md](PAPERS.md).
 
