@@ -237,6 +237,53 @@ python experiments/hunt3_joint_operator_family.py --seeds 30
 
 See [results/HUNT3.md](results/HUNT3.md).
 
+## HUNT4 — choose measurements per ambiguity block
+
+HUNT3 still searched for one global observable combination.
+
+HUNT4 asks whether that is itself an unnecessary bottleneck.
+
+Construct a family with K ambiguity blocks and K operators where block p has joint-signature difference
+
+    d_p = 2 delta e_p.
+
+For any one global unit projection alpha,
+
+    worst block gap
+      = 2 delta min_p |alpha_p|
+      <= 2 delta / sqrt(K).
+
+The balanced projection attains the bound, so this is the strongest possible global max-min attacker.
+
+A block-local view alpha_p=e_p gets gap 2 delta.
+
+Therefore the constructed family has an exact sqrt(K) worst-block signal-gap advantage for local measurement selection.
+
+Noisy 10-seed receipt:
+
+| K | global margin | local margin | global safe | local safe | global fidelity | local fidelity |
+|---:|---:|---:|---:|---:|---:|---:|
+| 2 | 1.4184 | **1.8941** | .5774 | **.7776** | .9655 | **.9821** |
+| 3 | 1.2263 | **1.9096** | .4780 | **.7767** | .9512 | **.9824** |
+| 4 | 1.1454 | **1.9246** | .4346 | **.7765** | .9437 | **.9823** |
+| 6 | 1.0356 | **1.9160** | .3694 | **.7674** | .9314 | **.9812** |
+| 8 | .9775 | **1.8765** | .3355 | **.7676** | .9249 | **.9817** |
+| 12 | .8993 | **1.8972** | .2996 | **.7685** | .9187 | **.9814** |
+
+The local selector is not told which observable belongs to which block. It learns that mapping from a slow EMA of HUNT1 split-half identifiability margins and chooses the intended observable about 99.5–100% of the time after warmup.
+
+Kill control: if all eight blocks really want the same observable, global and local collapse to the same answer (~.982 axis fidelity each).
+
+So HUNT4 earns only:
+
+> **When different unresolved blocks genuinely require different observable directions, forcing one universal measurement incurs a scaling cost.**
+
+Run:
+
+    python experiments/hunt4_block_local_measurement.py --seeds 10
+
+See [results/HUNT4.md](results/HUNT4.md).
+
 ## The actual remaining failure
 
 HUNT0 also contains an exact-degeneracy attack.
@@ -281,12 +328,12 @@ Novelty is currently **unclaimed**.
 
 ## Next attacks
 
-1. Replace HUNT3's synthetic commuting operators with several empirical lag operators from one continuous nonstationary stream.
-2. Compare the random projection bank against full SOBI / approximate joint diagonalization and against direct optimization of the projection coefficients.
-3. Define ambiguity from joint signature geometry rather than from a single projected eigengap.
-4. Compare against Kato/projector parallel transport and proper manifold trackers.
-5. Replace the independent split assumption with contiguous, bootstrap, or robust perturbation estimates.
-6. Spend task consequence only after the full unsupervised operator family still leaves a semantic block unresolved.
+1. Give observables an explicit cost: many lags/frequencies/views available, only a few affordable per update.
+2. Replace synthetic operators with empirical multi-lag operators from one continuous nonstationary stream.
+3. Compare block-local selection against full SOBI / joint diagonalization, fixed measurement subsets, random sensing and active experiment-design baselines.
+4. Define ambiguity from joint signature geometry rather than from one projected eigengap.
+5. Replace independent splits with contiguous/bootstrap/robust uncertainty estimates.
+6. Spend task consequence only after cheap measurement selection still leaves a block unresolved.
 
 See [PAPERS.md](PAPERS.md).
 
