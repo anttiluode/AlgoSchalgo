@@ -195,6 +195,61 @@ A representative classical reference:
 
 Again: the interesting residue, if any, is not sensor selection itself.
 
+## HUNT5 pressure — dual effect, observability and sensor scheduling
+
+HUNT5 moves from passive representation tracking into closed-loop sensing.
+
+The control output changes the plant state and simultaneously changes the quality of the next observation. This belongs to a large existing control-theory family.
+
+### Dual control
+
+The classic dual-control idea is that an action has both a directing/control effect and an information/probing effect.
+
+A useful survey:
+
+- *Stochastic model predictive control with active uncertainty learning: A Survey on dual control*.
+  https://doi.org/10.1016/j.arcontrol.2017.09.001
+
+Pressure on HUNT5:
+
+- "actions affect future information" is emphatically not new;
+- the ECG loop is interesting as a tiny deterministic example where the controller accidentally drives its own observer into degeneracy, not as a discovery of dual control.
+
+### Data-driven sensor selection by observability
+
+Fotiadis & Vamvoudakis, *Input-output data-driven sensor selection for cyber-physical systems*, Automatica 186, 2026.
+
+https://doi.org/10.1016/j.automatica.2026.112829
+
+They select sensor subsets for unknown systems using observability-related objectives computed from input-output data.
+
+Pressure on AlgoSchalgo:
+
+- "choose sensors that improve observability" is established;
+- a serious comparison should include Gramian/H2/log-det style observability metrics, not only local contrast or eigengaps.
+
+### Dynamic sensor scheduling and epsilon-observability
+
+Liu, Shi, Li & Shi, *Data Scheduling and State Estimation for Large-Scale Event-Based Sensor Arrays*, SIAM Journal on Control and Optimization, 2026.
+
+https://doi.org/10.1137/24M1670792
+
+They jointly study dynamic sensor/data selection and state estimation and derive an epsilon-observability criterion under spatial-temporal scheduling.
+
+This is especially relevant to the next AlgoSchalgo attack:
+
+> when observation choice itself changes over time, what guarantees that the resulting scheduled system remains observable?
+
+### Sparse joint sensor/actuator scheduling
+
+Joint sensor and actuator scheduling with performance guarantees is also established.
+
+https://doi.org/10.1016/j.automatica.2020.109197
+
+The broad lesson for AlgoSchalgo is again restrictive:
+
+> the candidate contribution is not "select informative sensors." It is, if anything, the specific ambiguity-block / operator-family / action-dependent identifiability policy and whether it gives a cheap useful approximation in moving-representation problems.
+
 ## Not currently claimed
 
 - flags are new;
