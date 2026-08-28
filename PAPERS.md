@@ -250,6 +250,60 @@ The broad lesson for AlgoSchalgo is again restrictive:
 
 > the candidate contribution is not "select informative sensors." It is, if anything, the specific ambiguity-block / operator-family / action-dependent identifiability policy and whether it gives a cheap useful approximation in moving-representation problems.
 
+## HUNT6 pressure — active sensing belief policies are old
+
+ProbePulse32 is intentionally close to classical active sensing so that its transparent behavior has a known mathematical interpretation.
+
+### Belief-state active sensing
+
+Active sensing is commonly formulated as a POMDP / belief-state control problem. A Bayesian observer maintains a posterior over hidden states and chooses sensing actions based on expected future value or expected information gain.
+
+Useful overview:
+
+- *Theoretical perspectives on active sensing*.
+  https://pmc.ncbi.nlm.nih.gov/articles/PMC6116896/
+
+The information-gain formulation explicitly measures expected posterior entropy reduction after a candidate sensing action.
+
+### Cost-sensitive Bayesian sensing
+
+Ahmad & Yu, *Cost-sensitive Bayesian control policy in human active sensing*.
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC4253738/
+
+Their C-DAC formulation balances observation/repositioning/delay/error costs on a belief state and is much more principled than HUNT6's one-step entropy threshold.
+
+Pressure on AlgoSchalgo:
+
+- explicit belief units are not new;
+- entropy-triggered sensing is not new;
+- sensing cost inside Bayesian control is not new.
+
+### Active sensing with neural networks
+
+*Active sensing with artificial neural networks*, Neural Networks, 2021.
+
+https://pubmed.ncbi.nlm.nih.gov/34482173/
+
+This work approximates information gain inside a neural-network setting and uses gradient-based sensing action selection.
+
+Pressure on the planned continuous ProbePulse layer:
+
+- "neural network + information-seeking sensing action" already exists;
+- HUNT7 must be compared against learned active-sensing policies, not merely passive GRUs.
+
+### Sensor-management literature
+
+Information-theoretic sensor management has long chosen sensing actions by expected entropy/KL reduction.
+
+Representative overview:
+
+https://doi.org/10.1016/j.sigpro.2004.11.001
+
+Therefore HUNT6's useful status is architectural/testbed status, not novelty:
+
+> a fully inspectable 32-unit recurrent implementation connects the AlgoSchalgo ambiguity-block line to classical active sensing and gives a concrete cost/accuracy benchmark against black-box recurrent models.
+
 ## Not currently claimed
 
 - flags are new;
