@@ -304,6 +304,84 @@ Therefore HUNT6's useful status is architectural/testbed status, not novelty:
 
 > a fully inspectable 32-unit recurrent implementation connects the AlgoSchalgo ambiguity-block line to classical active sensing and gives a concrete cost/accuracy benchmark against black-box recurrent models.
 
+## HUNT7 pressure — visible transforms and adaptive perceptual computation
+
+HUNT7 deliberately moves toward transparent sequential image processing.
+
+That general territory is well occupied.
+
+### Spatial Transformer Networks
+
+Jaderberg et al., *Spatial Transformer Networks* (2015).
+
+https://arxiv.org/abs/1506.02025
+
+A spatial transformer is a differentiable module that explicitly learns spatial manipulation of data or feature maps, including translation, scale, rotation and more generic warps.
+
+Pressure on HUNT7:
+
+- "let a network explicitly transform an image before deciding" is old;
+- our demo's transforms are deliberately hand-named and externally inspectable rather than learned hidden warps.
+
+### Adaptive Computation Time
+
+Alex Graves, *Adaptive Computation Time for Recurrent Neural Networks* (2016).
+
+https://arxiv.org/abs/1603.08983
+
+ACT lets a recurrent model vary the amount of computation allocated to each input.
+
+Pressure:
+
+- "easy inputs get less computation, hard inputs get more" is old;
+- HUNT7 needs value only if its explicit support criterion and audit trail buy something beyond a scalar learned halting gate.
+
+### Adaptive computation as perceptual allocation
+
+Belledonne, Butkus, Scholl & Yildirim, *Adaptive computation as a new mechanism of dynamic human attention*, Psychological Review, 2026.
+
+https://pubmed.ncbi.nlm.nih.gov/40569736/
+
+The paper explicitly frames attention as on-the-fly rationing of perceptual computations according to task relevance.
+
+This is very close to the broad philosophy of the visible ATP layer.
+
+Therefore HUNT7 should not claim a new principle of "perceptual compute budgeting."
+
+### Entropy-driven task-adaptive visual allocation
+
+Xu et al., *RATION: Entropy-Driven Task-Adaptive Visual Attention Allocation Framework for Multimodal Reasoning*, ACL Findings 2026.
+
+https://aclanthology.org/2026.findings-acl.1238/
+
+RATION explicitly uses entropy/task-dependent visual demand to adapt visual attention allocation in multimodal reasoning.
+
+Pressure:
+
+- uncertainty/entropy-driven allocation of visual computation is active current work;
+- the useful residue, if any, must be in the transparent distinction structure, explicit operations and architecture-agnostic control-plane use.
+
+### FovEx
+
+Panda et al., *FovEx: Human-Inspired Explanations for Vision Transformers and Convolutional Neural Networks*, IJCV 2025.
+
+https://doi.org/10.1007/s11263-025-02543-y
+
+FovEx iteratively applies foveation-based input transformations and uses overt-attention style exploration to produce model explanations.
+
+Pressure:
+
+- iterative visible manipulation of an image for interpretability is not unique to this project;
+- HUNT7 is different in purpose: it is trying to control perception/computation itself rather than generate a post-hoc explanation.
+
+### HUNT7's narrower empirical question
+
+The candidate test is now:
+
+> Does separating **prediction surprise** from **current distinction support**, then allocating explicit paid transforms only to the latter, improve quality-per-compute and produce a more useful audit trace than ordinary confidence-gated escalation?
+
+That is not established by the toy page.
+
 ## Not currently claimed
 
 - flags are new;
