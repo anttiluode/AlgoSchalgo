@@ -440,6 +440,64 @@ Run:
 
 See [results/HUNT6.md](results/HUNT6.md).
 
+## HUNT7 — visible perception cycle
+
+HUNT7 stops treating "active sensing" itself as the discovery and turns the older Perception Lab predictive-memory / surprise / ATP branch into a transparent control plane for the newer support/observability idea.
+
+The browser demo now shows the whole cycle:
+
+    learned visible prototypes P
+            +
+    learned transition model T
+            |
+            v
+        predicted image
+            |
+            v
+        messy observation
+            |
+            v
+      support / ambiguity
+            |
+       clear enough?
+       /          \
+     yes           no
+      |             |
+    HOLD     buy explicit transform
+      |       by support gain / ATP
+      |             |
+      +------> recalled image
+                    |
+                    v
+          surprise residual
+         recall - prediction
+
+Critical rule:
+
+> prediction error may raise an alarm, but prediction is not allowed to choose the transform.
+
+A clear-but-unexpected observation should stay untouched and report surprise.
+
+An ambiguous observation may spend ATP on named operations such as recenter, rotate, sharpen, contrast or zoom.
+
+ATP now means finite optional computation budget rather than a physical-energy claim.
+
+This gives two different failure signals:
+
+    high surprise + low ambiguity
+        -> world-model mismatch
+        -> HOLD
+
+    high ambiguity
+        -> current view cannot support the distinction
+        -> optional paid work
+
+The page exposes predicted image, observed image, transformed trajectory, recalled image, surprise residual, candidate support, ATP, transition matrix, learned prototypes and every transform score.
+
+This is still a toy. The strongest next attack is to wrap the same support/control logic around an already-trained ordinary image classifier and compare it against a scalar confidence threshold at matched real compute/sensor cost.
+
+See [results/HUNT7_VISIBLE_PERCEPTION.md](results/HUNT7_VISIBLE_PERCEPTION.md) and the repository [index.html](index.html).
+
 ## The actual remaining failure
 
 HUNT0 also contains an exact-degeneracy attack.
@@ -484,12 +542,12 @@ Novelty is currently **unclaimed**.
 
 ## Next attacks
 
-1. Remove HUNT6's hand-enumerated 32-state hypothesis dictionary: continuous recurrent state, explicit ambiguity layer, learned observation operators.
-2. Train an equally budgeted learned sensor-gating GRU/RNN attacker, not only cheap-only/all-sensor black boxes.
-3. Learn action -> future-identifiability on the ECG loop so a probe can be issued before the controller enters a blind region.
-4. Give observer actions explicit compute/energy/latency cost and optimize accuracy per measurement.
-5. Keep estimation uncertainty separate from distinction strength; do not let repeatable collapse masquerade as confidence.
-6. Move from synthetic ring/checker worlds to an actual temporal/audio/sensor task once the continuous-state pulse survives.
+1. Wrap HUNT7's support/control plane around an already-trained ordinary image classifier; do not invent another synthetic neural architecture first.
+2. Compare against a scalar confidence-threshold escalation policy at exactly matched real compute / bytes / sensor reads.
+3. Test the HUNT7 separation: clear-but-unexpected should report surprise without spending image transforms; ambiguous-but-expected should spend work.
+4. Add optional observations with real cost: high-resolution crop, extra frame, larger model or second modality.
+5. Return UNRESOLVED when support remains weak after the budget is exhausted.
+6. Only if the transparent wrapper earns a better quality/cost Pareto curve should we revisit a learned continuous-state pulse layer.
 
 See [PAPERS.md](PAPERS.md).
 
