@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AlgoSchalgo — Visible Image Computation</title>
+<style>
+:root{--bg:#0a0d12;--panel:#111720;--panel2:#161e29;--line:#263342;--text:#e8eef7;--muted:#91a1b4;--hot:#ffd166;--good:#72e1a6;--bad:#ff7b8b;--cyan:#69d2e7;--violet:#b69cff}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 15% 0%,#192331 0,transparent 32%),radial-gradient(circle at 90% 15%,#17202c 0,transparent 30%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+header{max-width:1480px;margin:auto;padding:28px 28px 15px;display:flex;gap:22px;justify-content:space-between;align-items:flex-end}
+.kicker{font:700 12px/1.2 ui-monospace,monospace;letter-spacing:.18em;color:var(--cyan);text-transform:uppercase}
+h1{font-size:clamp(30px,4vw,56px);line-height:1;margin:7px 0 8px;letter-spacing:-.04em}
+.subtitle{max-width:900px;color:var(--muted);font-size:16px;line-height:1.55}
+a{color:var(--cyan);text-decoration:none}.nav{font:12px ui-monospace,monospace;white-space:nowrap;padding-bottom:4px}
+main{max-width:1480px;margin:auto;padding:10px 28px 48px}
+.grid{display:grid;grid-template-columns:minmax(360px,1.08fr) minmax(330px,.92fr);gap:18px}
+.panel{background:linear-gradient(180deg,rgba(22,30,41,.95),rgba(14,20,28,.95));border:1px solid var(--line);border-radius:18px;box-shadow:0 15px 45px #0005}.pad{padding:18px}
+.panel h2{font-size:14px;text-transform:uppercase;letter-spacing:.12em;margin:0 0 14px;color:#b7c7d8}
+.workspace{display:grid;grid-template-columns:minmax(250px,1fr) 250px;gap:16px;align-items:start}
+.canvasWrap{position:relative;min-height:420px;border:1px solid var(--line);border-radius:14px;display:grid;place-items:center;background:#070a0f;overflow:hidden}
+canvas.main{width:min(100%,520px);aspect-ratio:1/1;image-rendering:pixelated}
+.badge{position:absolute;top:12px;left:12px;background:#070a0fd9;border:1px solid #2b3948;border-radius:999px;padding:7px 10px;font:700 11px ui-monospace,monospace;color:var(--muted)}
+.truth{right:12px;left:auto}.truth.hidden{display:none}
+.controls{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px}
+button{border:1px solid #344558;background:#182331;color:var(--text);border-radius:10px;padding:10px 13px;font-weight:750;cursor:pointer;transition:.15s}
+button:hover{transform:translateY(-1px);border-color:#5c7591}button.primary{background:#f3f5f7;color:#10151c;border-color:white}button.pulse{background:#2d281a;color:var(--hot);border-color:#625633}
+.slider{display:grid;grid-template-columns:70px 1fr 32px;gap:8px;align-items:center;color:var(--muted);font:12px ui-monospace,monospace;margin-top:13px}
+input[type=range]{width:100%;accent-color:var(--cyan)}
+.readout{display:grid;gap:12px}.box{border:1px solid var(--line);border-radius:13px;padding:13px;background:#0b1017}
+.boxTitle{font:700 11px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:10px}
+.candidate{display:grid;grid-template-columns:70px 1fr 46px;gap:8px;align-items:center;margin:8px 0;font:12px ui-monospace,monospace}
+.bar{height:8px;background:#202c39;border-radius:99px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--violet))}
+.ambiguity{font-size:28px;font-weight:850;letter-spacing:-.03em}.ambiguity small{font-size:12px;color:var(--muted);font-weight:500}
+.meter{height:10px;background:#202c39;border-radius:99px;overflow:hidden;margin-top:8px}.meterFill{height:100%;background:linear-gradient(90deg,var(--good),var(--hot),var(--bad));transition:.3s width}
+.reason{font:12px/1.55 ui-monospace,monospace;color:#c9d7e6;min-height:56px}
+.pulseFlash{animation:flash .55s ease}@keyframes flash{0%{box-shadow:0 0 0 0 #ffd16600}35%{box-shadow:0 0 0 5px #ffd16655,0 0 35px #ffd16633}100%{box-shadow:0 0 0 0 #ffd16600}}
+.section{margin-top:18px}.prototypes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.proto{border:1px solid var(--line);background:#090d12;border-radius:12px;padding:8px;text-align:center}.proto canvas{width:100%;aspect-ratio:1;image-rendering:pixelated;background:#000;border-radius:7px}.proto label{display:block;font:11px ui-monospace,monospace;color:var(--muted);margin-top:6px}
+.matrixNote{font:12px/1.5 ui-monospace,monospace;color:var(--muted);margin-top:10px}
+.transforms{display:grid;gap:7px}.transform{display:grid;grid-template-columns:120px 1fr 58px 48px;gap:8px;align-items:center;font:11px ui-monospace,monospace}
+.transform .scoreBar{height:7px;background:#202c39;border-radius:99px;overflow:hidden}.transform .scoreFill{height:100%;background:var(--hot)}.transform.best{color:var(--hot)}
+.history{display:flex;gap:11px;overflow-x:auto;padding:4px 2px 10px}.stage{min-width:142px;border:1px solid var(--line);background:#0b1016;border-radius:12px;padding:8px}.stage canvas{width:124px;height:124px;image-rendering:pixelated;border-radius:7px;background:#000}
+.stage .op{font:700 11px ui-monospace,monospace;margin-top:7px;color:#d9e5f2}.stage .meta{font:10px/1.45 ui-monospace,monospace;color:var(--muted);margin-top:3px}
+.log{height:170px;overflow:auto;background:#070a0f;border:1px solid var(--line);border-radius:12px;padding:10px;font:11px/1.5 ui-monospace,monospace;color:#aebfd0}.log .hot{color:var(--hot)}.log .good{color:var(--good)}.log .bad{color:var(--bad)}
+.explain{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.explain article{padding:16px;border:1px solid var(--line);border-radius:14px;background:#0d131b}.explain b{display:block;color:var(--cyan);font:12px ui-monospace,monospace;margin-bottom:7px}.explain p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
+footer{max-width:1480px;margin:0 auto 40px;padding:0 28px;color:#637386;font:11px ui-monospace,monospace}
+@media(max-width:980px){.grid{grid-template-columns:1fr}.workspace{grid-template-columns:1fr}.readout{grid-template-columns:repeat(2,1fr)}.explain{grid-template-columns:1fr}}
+@media(max-width:620px){header,main,footer{padding-left:14px;padding-right:14px}.readout{grid-template-columns:1fr}.prototypes{grid-template-columns:repeat(2,1fr)}.transform{grid-template-columns:95px 1fr 48px}.transform .cost{display:none}}
+</style>
+</head>
+<body>
+<header>
+<div><div class="kicker">AlgoSchalgo / visible computation experiment</div><h1>Watch the image become the answer.</h1>
+<div class="subtitle">A tiny learner that keeps its state image-like. It learns four visible prototypes, measures which class distinctions are still supported, and <b>pulses an explicit image transform only when the current view is ambiguous.</b> No hidden feature-map theatre: every state and every operation used for the decision is on screen.</div></div>
+<div class="nav"><a href="README.md">README</a> · <a href="results/HUNT6.md">HUNT6</a> · <a href="PAPERS.md">papers</a></div>
+</header>
+<main>
+<div class="grid">
+<section class="panel pad" id="workPanel">
+<h2>Current computational state</h2>
+<div class="workspace">
+<div>
+<div class="canvasWrap"><canvas id="mainCanvas" class="main" width="64" height="64"></canvas><span class="badge" id="stageBadge">stage 0 / raw</span><span class="badge truth hidden" id="truthBadge"></span></div>
+<div class="controls"><button id="trainBtn">Learn prototypes</button><button id="newBtn" class="primary">New messy image</button><button id="pulseBtn" class="pulse">Pulse one stage</button><button id="autoBtn">Auto process</button><button id="truthBtn">Reveal truth</button></div>
+<div class="slider"><span>difficulty</span><input id="difficulty" type="range" min="0" max="100" value="72"><strong id="diffVal">72</strong></div>
+</div>
+<aside class="readout">
+<div class="box"><div class="boxTitle">candidate support</div><div id="candidates"></div></div>
+<div class="box"><div class="boxTitle">ambiguity</div><div class="ambiguity"><span id="ambiguityValue">—</span> <small>0 clear · 1 merged</small></div><div class="meter"><div class="meterFill" id="ambiguityFill" style="width:0%"></div></div></div>
+<div class="box"><div class="boxTitle">why the next pulse?</div><div class="reason" id="reason">Train the four visible prototypes, then generate an image.</div></div>
+<div class="box"><div class="boxTitle">current decision</div><div class="ambiguity" id="decision">—</div><div class="matrixNote" id="decisionMeta">waiting for data</div></div>
+</aside>
+</div>
+<div class="section"><h2>Actual transform trajectory</h2><div class="history" id="history"></div></div>
+</section>
+
+<section class="panel pad">
+<h2>What the learner actually learned</h2><div class="prototypes" id="prototypes"></div>
+<div class="matrixNote">The learned classifier is a visible 4 × 4096 prototype matrix. A class score is normalized image similarity to one row. Learning here means averaging training examples into those four rows.</div>
+<div class="section"><h2>Candidate next transforms</h2><div class="transforms" id="transforms"></div><div class="matrixNote">Each candidate is applied temporarily to the current image. The page measures the resulting top-vs-second prototype margin and divides its gain by operation cost. The winning operation is the pulse. No learned gate decides this.</div></div>
+<div class="section"><h2>Execution trace</h2><div class="log" id="log"></div></div>
+</section>
+</div>
+<div class="explain">
+<article><b>1 · IMAGE REMAINS STATE</b><p>The evolving object is still a 64×64 image. You can inspect every intermediate state directly instead of reverse-engineering anonymous activations.</p></article>
+<article><b>2 · SUPPORT, NOT CONFIDENCE</b><p>The guard tracks the separation margin between the two best currently supported interpretations. When they collapse together, the machine has a specific reason to spend computation.</p></article>
+<article><b>3 · PULSE = EXPLICIT WORK</b><p>A pulse is a named operation—recenter, rotate, sharpen, contrast—not a mysterious spike. Easy images can stop early; harder ones spend more stages.</p></article>
+</div>
+</main>
+<footer>AlgoSchalgo · visible transform prototype · pure browser JavaScript, no model download, no external libraries.</footer>
+
+<script>
+"use strict";
+var N=64, classes=["circle","square","triangle","cross"];
+var C=document.getElementById("mainCanvas");
+var ui={
+ candidates:document.getElementById("candidates"),ambiguityValue:document.getElementById("ambiguityValue"),
+ ambiguityFill:document.getElementById("ambiguityFill"),reason:document.getElementById("reason"),
+ decision:document.getElementById("decision"),decisionMeta:document.getElementById("decisionMeta"),
+ transforms:document.getElementById("transforms"),history:document.getElementById("history"),
+ log:document.getElementById("log"),stageBadge:document.getElementById("stageBadge"),
+ truthBadge:document.getElementById("truthBadge"),workPanel:document.getElementById("workPanel")
+};
+var prototypes={},current=null,truth=null,stages=[],pulseCount=0,trained=false,autoTimer=null;
+function clamp(x,a,b){a=a===undefined?0:a;b=b===undefined?1:b;return Math.max(a,Math.min(b,x))}
+function idx(x,y){return y*N+x} function empty(){return new Float32Array(N*N)} function copy(a){return new Float32Array(a)}
+function seededNoise(scale){return (Math.random()+Math.random()+Math.random()+Math.random()-2)*scale}
+function renderShape(name,opt){
+ opt=opt||{};var a=empty(),angle=opt.angle||0,sx=opt.shiftX||0,sy=opt.shiftY||0,scale=opt.scale||1,ca=Math.cos(-angle),sa=Math.sin(-angle);
+ for(var y=0;y<N;y++)for(var x=0;x<N;x++){var X=(x-(N-1)/2-sx)/(N*.5*scale),Y=(y-(N-1)/2-sy)/(N*.5*scale),rx=ca*X-sa*Y,ry=sa*X+ca*Y,on=false;
+  if(name==="circle")on=rx*rx+ry*ry<.43*.43;
+  else if(name==="square")on=Math.max(Math.abs(rx),Math.abs(ry))<.37;
+  else if(name==="cross")on=(Math.abs(rx)<.13&&Math.abs(ry)<.43)||(Math.abs(ry)<.13&&Math.abs(rx)<.43);
+  else if(name==="triangle"){var y0=-.44,y1=.38;if(ry>=y0&&ry<=y1){var half=.44*(ry-y0)/(y1-y0);on=Math.abs(rx)<=half}}
+  a[idx(x,y)]=on?1:0;
+ }
+ var out=a;if(opt.blur)for(var q=0;q<opt.blur;q++)out=blur(out);
+ if(opt.noise)for(var i=0;i<out.length;i++)out[i]=clamp(out[i]+seededNoise(opt.noise));
+ if(opt.occlude){var w=Math.floor(7+opt.occlude*13),h=Math.floor(5+opt.occlude*10),ox=Math.floor(Math.random()*(N-w)),oy=Math.floor(Math.random()*(N-h));for(var yy=oy;yy<oy+h;yy++)for(var xx=ox;xx<ox+w;xx++)out[idx(xx,yy)]*=.12}
+ return out;
+}
+function blur(a){var b=empty();for(var y=0;y<N;y++)for(var x=0;x<N;x++){var s=0,c=0;for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){var xx=x+dx,yy=y+dy;if(xx>=0&&xx<N&&yy>=0&&yy<N){s+=a[idx(xx,yy)];c++}}b[idx(x,y)]=s/c}return b}
+function sharpen(a){var bl=blur(a),b=empty();for(var i=0;i<a.length;i++)b[i]=clamp(a[i]*1.85-bl[i]*.85);return b}
+function contrast(a){var mean=0;for(var i=0;i<a.length;i++)mean+=a[i];mean/=a.length;var b=empty();for(i=0;i<a.length;i++)b[i]=clamp(.5+(a[i]-mean)*1.55);return b}
+function transformGeom(a,angle,dx,dy,scale){angle=angle||0;dx=dx||0;dy=dy||0;scale=scale||1;var b=empty(),ca=Math.cos(-angle),sa=Math.sin(-angle),cx=(N-1)/2,cy=(N-1)/2;
+ for(var y=0;y<N;y++)for(var x=0;x<N;x++){var X=(x-cx-dx)/scale,Y=(y-cy-dy)/scale,sx=ca*X-sa*Y+cx,sy=sa*X+ca*Y+cy,xi=Math.round(sx),yi=Math.round(sy);if(xi>=0&&xi<N&&yi>=0&&yi<N)b[idx(x,y)]=a[idx(xi,yi)]}return b}
+function recenter(a){var mass=0,mx=0,my=0;for(var y=0;y<N;y++)for(var x=0;x<N;x++){var v=a[idx(x,y)];mass+=v;mx+=x*v;my+=y*v}if(mass<1e-6)return copy(a);mx/=mass;my/=mass;return transformGeom(a,0,(N-1)/2-mx,(N-1)/2-my,1)}
+function normalizeVec(a){var mean=0,i;for(i=0;i<a.length;i++)mean+=a[i];mean/=a.length;var ss=0,b=new Float32Array(a.length);for(i=0;i<a.length;i++){b[i]=a[i]-mean;ss+=b[i]*b[i]}var n=Math.sqrt(ss)+1e-9;for(i=0;i<b.length;i++)b[i]/=n;return b}
+function cosine(a,b){var A=normalizeVec(a),B=normalizeVec(b),s=0;for(var i=0;i<A.length;i++)s+=A[i]*B[i];return s}
+function classify(a){var scores=classes.map(function(name){return{name:name,score:cosine(a,prototypes[name])}}).sort(function(p,q){return q.score-p.score});var margin=scores[0].score-scores[1].score;return{scores:scores,margin:margin,ambiguity:clamp(1-margin/.20),top:scores[0].name}}
+function learn(){
+ prototypes={};
+ classes.forEach(function(name){var p=empty(),samples=44;for(var s=0;s<samples;s++){var ex=renderShape(name,{angle:(Math.random()-.5)*.10,shiftX:(Math.random()-.5)*2.2,shiftY:(Math.random()-.5)*2.2,scale:.98+Math.random()*.04,noise:.055});var centered=recenter(ex);for(var i=0;i<p.length;i++)p[i]+=centered[i]/samples}prototypes[name]=p});
+ trained=true;drawPrototypes();addLog("LEARN","4 × 4096 visible prototype matrix estimated from 176 examples","good");if(current)refresh();
+}
+function makeMess(){
+ if(!trained)learn();stopAuto();var d=+document.getElementById("difficulty").value/100;truth=classes[Math.floor(Math.random()*classes.length)];
+ current=renderShape(truth,{angle:(Math.random()-.5)*(0.25+d*1.05),shiftX:(Math.random()-.5)*(3+d*18),shiftY:(Math.random()-.5)*(3+d*18),scale:.80+Math.random()*.38,blur:Math.random()<d*.72?(Math.random()<.45?2:1):0,noise:.03+d*.17,occlude:Math.random()<d*.62?d*.7:0});
+ stages=[];pulseCount=0;ui.truthBadge.textContent="truth: "+truth;ui.truthBadge.classList.add("hidden");addStage(current,"raw input");addLog("NEW","messy image generated; truth hidden from processor","");refresh();
+}
+var ops=[
+ {name:"recenter",cost:1.0,fn:function(a){return recenter(a)}},
+ {name:"rotate -18°",cost:1.15,fn:function(a){return transformGeom(a,-Math.PI/10)}},
+ {name:"rotate -8°",cost:1.0,fn:function(a){return transformGeom(a,-Math.PI/22.5)}},
+ {name:"rotate +8°",cost:1.0,fn:function(a){return transformGeom(a,Math.PI/22.5)}},
+ {name:"rotate +18°",cost:1.15,fn:function(a){return transformGeom(a,Math.PI/10)}},
+ {name:"sharpen",cost:.75,fn:function(a){return sharpen(a)}},
+ {name:"contrast",cost:.55,fn:function(a){return contrast(a)}}
+];
+function evaluateOps(){if(!current||!trained)return[];var base=classify(current);return ops.map(function(op){var candidate=op.fn(current),c=classify(candidate),gain=c.margin-base.margin;return{name:op.name,cost:op.cost,fn:op.fn,candidate:candidate,classification:c,gain:gain,utility:gain/op.cost}}).sort(function(a,b){return b.utility-a.utility})}
+function pulse(){
+ if(!current)return false;var before=classify(current),ev=evaluateOps(),best=ev[0];
+ if(before.margin>.145){addLog("STOP","support margin "+before.margin.toFixed(3)+" is already sufficient; no pulse bought","good");ui.reason.textContent="No pulse: the best interpretation is sufficiently separated from its nearest rival.";return false}
+ if(!best||best.gain<.003){addLog("STOP","no explicit transform predicts enough support gain; refusing cosmetic work","bad");ui.reason.textContent="No useful pulse found. The allowed transform library cannot improve this ambiguity.";return false}
+ current=best.candidate;pulseCount++;addStage(current,best.name);var after=classify(current);
+ addLog("PULSE",best.name+": margin "+before.margin.toFixed(3)+" → "+after.margin.toFixed(3)+"; ambiguity "+before.ambiguity.toFixed(2)+" → "+after.ambiguity.toFixed(2),"hot");
+ ui.workPanel.classList.remove("pulseFlash");void ui.workPanel.offsetWidth;ui.workPanel.classList.add("pulseFlash");refresh();return pulseCount<5;
+}
+function auto(){if(autoTimer){stopAuto();return}document.getElementById("autoBtn").textContent="Stop auto";var n=0;autoTimer=setInterval(function(){n++;var go=pulse();if(!go||n>=5)stopAuto()},620)}
+function stopAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null}document.getElementById("autoBtn").textContent="Auto process"}
+function addStage(image,op){var c=classify(image);stages.push({image:copy(image),op:op,classification:c});drawHistory()}
+function drawImage(canvas,a){var cx=canvas.getContext("2d"),im=cx.createImageData(N,N);for(var i=0;i<a.length;i++){var v=Math.floor(clamp(a[i])*255);im.data[i*4]=v;im.data[i*4+1]=v;im.data[i*4+2]=v;im.data[i*4+3]=255}cx.putImageData(im,0,0)}
+function drawPrototypes(){var root=document.getElementById("prototypes");root.innerHTML="";classes.forEach(function(name){var d=document.createElement("div");d.className="proto";var c=document.createElement("canvas");c.width=N;c.height=N;drawImage(c,prototypes[name]);var l=document.createElement("label");l.textContent=name;d.appendChild(c);d.appendChild(l);root.appendChild(d)})}
+function drawHistory(){ui.history.innerHTML="";stages.forEach(function(s,i){var d=document.createElement("div");d.className="stage";var c=document.createElement("canvas");c.width=N;c.height=N;drawImage(c,s.image);var op=document.createElement("div");op.className="op";op.textContent=i+". "+s.op;var m=document.createElement("div");m.className="meta";m.textContent=s.classification.top+" · margin "+s.classification.margin.toFixed(3);d.appendChild(c);d.appendChild(op);d.appendChild(m);ui.history.appendChild(d)});ui.history.scrollLeft=ui.history.scrollWidth}
+function refresh(){
+ if(!current||!trained)return;drawImage(C,current);var c=classify(current);ui.stageBadge.textContent="stage "+pulseCount+" / "+(stages[stages.length-1]?stages[stages.length-1].op:"raw");
+ ui.ambiguityValue.textContent=c.ambiguity.toFixed(2);ui.ambiguityFill.style.width=(c.ambiguity*100).toFixed(1)+"%";ui.decision.textContent=c.top;ui.decisionMeta.textContent="support margin "+c.margin.toFixed(3)+" · "+pulseCount+" pulse"+(pulseCount===1?"":"s")+" spent";
+ ui.candidates.innerHTML="";var min=Math.min.apply(null,c.scores.map(function(x){return x.score})),max=Math.max.apply(null,c.scores.map(function(x){return x.score})),span=max-min+1e-8;
+ c.scores.forEach(function(row){var d=document.createElement("div");d.className="candidate";d.innerHTML="<span>"+row.name+"</span><span class='bar'><span class='fill' style='display:block;width:"+(((row.score-min)/span)*100).toFixed(1)+"%'></span></span><b>"+row.score.toFixed(2)+"</b>";ui.candidates.appendChild(d)});
+ var ev=evaluateOps();ui.transforms.innerHTML="";var umax=Math.max.apply(null,[.001].concat(ev.map(function(x){return Math.max(0,x.utility)})));
+ ev.forEach(function(x,i){var d=document.createElement("div");d.className="transform"+(i===0&&x.gain>0?" best":"");d.innerHTML="<span>"+(i===0&&x.gain>0?"▶ ":"")+x.name+"</span><span class='scoreBar'><span class='scoreFill' style='display:block;width:"+((Math.max(0,x.utility)/umax)*100).toFixed(1)+"%'></span></span><span>Δ "+(x.gain>=0?"+":"")+x.gain.toFixed(3)+"</span><span class='cost'>c "+x.cost.toFixed(2)+"</span>";ui.transforms.appendChild(d)});
+ if(c.margin>.145)ui.reason.textContent="No work required: "+c.top+" is separated from "+c.scores[1].name+" by margin "+c.margin.toFixed(3)+".";
+ else if(ev[0]&&ev[0].gain>.003)ui.reason.textContent=c.top+" vs "+c.scores[1].name+" is weakly separated. Best cheap intervention is “"+ev[0].name+"”, predicted margin gain "+ev[0].gain.toFixed(3)+" for cost "+ev[0].cost.toFixed(2)+".";
+ else ui.reason.textContent="Current view is ambiguous, but none of the allowed explicit transforms improves the class separation enough.";
+ drawHistory();
+}
+function addLog(tag,msg,cls){var line=document.createElement("div");line.className=cls||"";line.textContent=String(ui.log.children.length).padStart(2,"0")+"  "+tag.padEnd(6)+" "+msg;ui.log.appendChild(line);ui.log.scrollTop=ui.log.scrollHeight}
+document.getElementById("trainBtn").onclick=learn;document.getElementById("newBtn").onclick=makeMess;document.getElementById("pulseBtn").onclick=pulse;document.getElementById("autoBtn").onclick=auto;
+document.getElementById("truthBtn").onclick=function(){ui.truthBadge.classList.toggle("hidden")};document.getElementById("difficulty").oninput=function(e){document.getElementById("diffVal").textContent=e.target.value};
+learn();makeMess();
+</script>
+</body>
+</html>
