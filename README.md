@@ -136,6 +136,50 @@ python experiments/hunt1_self_calibrating_gap.py --seeds 3
 
 See [results/HUNT1.md](results/HUNT1.md).
 
+## HUNT2 — replace matrix noise with actual temporal estimation
+
+HUNT0/HUNT1 might still have been artifacts of adding friendly symmetric noise directly to a matrix.
+
+HUNT2 removes that shortcut.
+
+Six independent AR(1) sources are hidden by a moving orthogonal frame. Two source autocorrelations cross. For each current state, two finite windows produce whitened, symmetrized lag operators of the AMUSE/second-order-BSS form:
+
+```math
+L=C_0^{-1/2}\frac{C_1+C_1^T}{2}C_0^{-1/2}.
+```
+
+The same split-half disagreement chooses the ambiguity threshold.
+
+Five-seed receipt:
+
+| samples per half | overlap tracker | global guard | adaptive blocks | mean adaptive tau |
+|---:|---:|---:|---:|---:|
+| 128 | .87550 | .86589 | **.98468** | .3260 |
+| 256 | .88664 | .92188 | **.98929** | .2287 |
+| 512 | .89897 | .99078 | **.99549** | .1612 |
+| 1024 | .93108 | .99476 | **.99699** | .1139 |
+
+So the result survives finite-window temporal estimation.
+
+The pleasing part is the scaling: shorter/noisier windows disagree more, which automatically grows the ambiguity blocks. As sample count rises, split-half disagreement shrinks and individual axes are released again.
+
+```text
+more estimator uncertainty
+        -> coarser identifiable object
+
+more data
+        -> smaller uncertainty
+        -> finer flag / more individual axes
+```
+
+Run:
+
+```bash
+python experiments/hunt2_temporal_operator.py --seeds 5
+```
+
+See [results/HUNT2.md](results/HUNT2.md).
+
 ## The important failure
 
 HUNT0 also contains an exact-degeneracy attack.
@@ -180,12 +224,12 @@ Novelty is currently **unclaimed**.
 
 ## Next attacks
 
-1. Replace additive matrix noise with actual finite-window lag/covariance estimates from time series.
-2. Compare against Kato/projector parallel transport and proper manifold trackers.
-3. Replace the Gaussian split-half assumption with bootstrap / robust perturbation estimates.
-4. Let ambiguity blocks merge and split repeatedly in rank 32–256 streams.
-5. Add a tiny task-consequence budget only at block-split events and measure calibration cost.
-6. Try real drifting representations only after the synthetic mathematics is stable.
+1. Replace independent finite windows with contiguous halves from one continuous nonstationary stream.
+2. Compare one-lag AMUSE-style tracking against multi-lag SOBI / joint diagonalization.
+3. Compare against Kato/projector parallel transport and proper manifold trackers.
+4. Replace the Gaussian split-half assumption with bootstrap / robust perturbation estimates.
+5. Let ambiguity blocks merge and split repeatedly in rank 32–256 streams.
+6. Add a tiny task-consequence budget only at block-split events and measure calibration cost.
 
 See [PAPERS.md](PAPERS.md).
 
