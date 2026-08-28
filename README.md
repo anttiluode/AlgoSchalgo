@@ -180,7 +180,64 @@ python experiments/hunt2_temporal_operator.py --seeds 5
 
 See [results/HUNT2.md](results/HUNT2.md).
 
-## The important failure
+## HUNT3 — ambiguity belongs to the operator family
+
+HUNT0's exact-degeneracy failure was real, but too broadly interpreted.
+
+If several symmetric operators share the same hidden eigenvectors,
+
+```math
+A_k=Q\Lambda_kQ^T,
+```
+
+then each mode has a vector-valued joint signature across operators. A collision in one operator need not be a collision in the whole family.
+
+A linear combination
+
+```math
+B(\alpha)=\sum_k\alpha_k A_k
+```
+
+keeps the common eigenvectors while projecting joint signatures to scalar eigenvalues. Random linear combinations are established machinery in randomized joint diagonalization; the experiment therefore treats them as an attacker, not a novelty claim.
+
+HUNT3 adds one small operational wrapper: sample a bank of combinations and choose the one with the largest **split-half-noise-normalized minimum eigengap**.
+
+30 seeds in the HUNT0 hidden-gauge world, but now with three jointly observable operators:
+
+| random projections | single-op overall | single-op after | joint overall | joint inside exact degeneracy | joint after |
+|---:|---:|---:|---:|---:|---:|
+| 4 | .850781 | .688574 | .899323 | .889041 | .858542 |
+| 8 | .850781 | .688574 | .988471 | .990385 | .980643 |
+| 16 | .850781 | .688574 | **.996495** | **.996465** | **.996455** |
+| 32 | .850781 | .688574 | **.997132** | **.997108** | **.997176** |
+
+So the corrected boundary is:
+
+> **A semantic rotation is unobservable only inside a block that remains degenerate across the entire available operator family.**
+
+That changes the algorithmic policy:
+
+```text
+current operator becomes ambiguous
+        ↓
+do not spend labels/consequence yet
+        ↓
+search another lag / view / operator combination
+for a better-conditioned distinction
+        ↓
+only if the available family remains ambiguous
+declare a true ambiguity block
+```
+
+Run:
+
+```bash
+python experiments/hunt3_joint_operator_family.py --seeds 30
+```
+
+See [results/HUNT3.md](results/HUNT3.md).
+
+## The actual remaining failure
 
 HUNT0 also contains an exact-degeneracy attack.
 
@@ -192,9 +249,9 @@ Therefore no observation-only tracker can know it happened.
 
 The adaptive-block method correctly refuses to invent information, but semantic fidelity drops. When the gap reopens, statistics can identify axes again, while the semantic permutation/orientation may still require external task consequence.
 
-This is the boundary:
+This is the one-operator boundary. HUNT3 sharpens it:
 
-> **A stable subspace does not identify a privileged basis inside an exactly degenerate block.**
+> **A stable subspace does not identify a privileged basis inside a block that is exactly degenerate across every observable operator available to the tracker.**
 
 ## Why flags showed up
 
@@ -224,12 +281,12 @@ Novelty is currently **unclaimed**.
 
 ## Next attacks
 
-1. Replace independent finite windows with contiguous halves from one continuous nonstationary stream.
-2. Compare one-lag AMUSE-style tracking against multi-lag SOBI / joint diagonalization.
-3. Compare against Kato/projector parallel transport and proper manifold trackers.
-4. Replace the Gaussian split-half assumption with bootstrap / robust perturbation estimates.
-5. Let ambiguity blocks merge and split repeatedly in rank 32–256 streams.
-6. Add a tiny task-consequence budget only at block-split events and measure calibration cost.
+1. Replace HUNT3's synthetic commuting operators with several empirical lag operators from one continuous nonstationary stream.
+2. Compare the random projection bank against full SOBI / approximate joint diagonalization and against direct optimization of the projection coefficients.
+3. Define ambiguity from joint signature geometry rather than from a single projected eigengap.
+4. Compare against Kato/projector parallel transport and proper manifold trackers.
+5. Replace the independent split assumption with contiguous, bootstrap, or robust perturbation estimates.
+6. Spend task consequence only after the full unsupervised operator family still leaves a semantic block unresolved.
 
 See [PAPERS.md](PAPERS.md).
 
