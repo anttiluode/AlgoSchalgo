@@ -151,6 +151,50 @@ Why it matters:
 - explicitly models subspace uncertainty geometrically;
 - likely a stronger baseline than a binary gap guard.
 
+## HUNT4 pressure — active sensing and selective fusion
+
+HUNT4's broad idea is not new: choose measurements according to what remains uncertain.
+
+### Online experiment design
+
+Recent system-identification work explicitly chooses informative inputs online while parameter estimates evolve.
+
+- *Adaptive Experiment Design for Nonlinear System Identification With Operational Constraints*, IEEE Signal Processing Letters, 2026.
+  https://doi.org/10.1109/LSP.2025.3639512
+
+- *The shortest experiment for linear system identification* develops an online input-design method guided by past measurements and proves sample-length advantages over standard persistency-of-excitation style designs.
+  https://doi.org/10.1016/j.sysconle.2025.106197
+
+Pressure on HUNT4:
+
+- "adapt measurement to current uncertainty" is old and broad;
+- any novelty claim must live in the specific ambiguity-block / spectral-identifiability formulation, if anywhere.
+
+### Degeneracy-aware selective sensor fusion
+
+Zhang et al., *Fuse only what matters: Degeneracy-aware multi-sensor fusion for LiDAR-Inertial-Visual SLAM*, ISPRS Journal of Photogrammetry and Remote Sensing, 2026.
+
+https://doi.org/10.1016/j.isprsjprs.2026.05.031
+
+This is strikingly close in engineering philosophy:
+
+- detect when and in which directions the primary estimator becomes degenerate;
+- inject another sensor only in those directions;
+- avoid contaminating already well-constrained dimensions with unnecessary measurements.
+
+That means HUNT4 should not be sold as discovering "direction-specific selective sensing." A better question is whether the **joint-signature + split-half spectral margin + adaptive ambiguity-block** machinery offers a useful generic implementation in domains where the relevant observables are lags, frequencies, covariance operators, or representation views rather than physical sensors.
+
+### Classical online sensor selection
+
+Online sensor selection under processing constraints is much older than this project.
+
+A representative classical reference:
+
+- *Optimal sensor selection strategy for discrete-time state estimators*, IEEE Transactions on Aerospace and Electronic Systems, 1994.
+  https://doi.org/10.1109/7.272256
+
+Again: the interesting residue, if any, is not sensor selection itself.
+
 ## Not currently claimed
 
 - flags are new;
