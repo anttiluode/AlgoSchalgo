@@ -1,0 +1,3 @@
+# Optional dependencies for HUNT6 neural-network attackers.
+# Core AlgoSchalgo hunts remain NumPy/SciPy only.
+torch>=2.0
