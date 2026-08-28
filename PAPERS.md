@@ -85,6 +85,27 @@ Why it matters:
 - supports split-half estimation as an ordinary statistical move;
 - HUNT1 should eventually be expressed for an actual finite-sample operator estimator, not Gaussian matrix-noise toys.
 
+## AMUSE / SOBI — the temporal operator itself is old
+
+AMUSE uses a covariance matrix plus a lagged autocovariance matrix to recover sources whose temporal signatures differ.
+
+A useful statistical treatment of AMUSE:
+
+https://users.jyu.fi/~slahola/files/AMUSE.pdf
+
+SOBI generalizes the idea by jointly approximately diagonalizing several lagged covariance matrices:
+
+Adel Belouchrani, Karim Abed-Meraim, Jean-Francois Cardoso, Eric Moulines, *A blind source separation technique using second-order statistics*, IEEE TSP 1997.
+
+https://doi.org/10.1109/78.554307
+
+Why it matters:
+
+- HUNT2's whitened lag operator is intentionally an AMUSE-style object;
+- the next obvious attacker is multi-lag SOBI;
+- a source pair that collides at one lag may remain distinguishable from its signature across several lags;
+- if so, the correct ambiguity block should be defined by **joint temporal identifiability**, not one eigengap.
+
 ## Spectral-gap estimation
 
 Michele Benzi, Michele Rinelli, Igor Simunec, *Estimation of spectral gaps for sparse symmetric matrices*, Numerische Mathematik, 2026.
