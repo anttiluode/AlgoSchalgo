@@ -1,5 +1,7 @@
 # AlgoSchalgo
 
+https://anttiluode.github.io/AlgoSchalgo/
+
 **Algorithm hunt. Mathematics first. Useful if it survives.**
 
 This repository is deliberately not another architecture diary. The rule is:
